@@ -20,7 +20,10 @@ func FetchUsers(c *gin.Context) {
 
 func CreateUser(c *gin.Context) {
 	var user models.User
-	c.BindJSON(&user)
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	if err := business.CreateUser(&user); err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -52,7 +55,10 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	var user models.User
-	c.BindJSON(&user)
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	if err = business.UpdateUser(id, &user); err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
