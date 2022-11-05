@@ -18,7 +18,7 @@ func CreateUser(user *models.User) (err error) {
 }
 
 func FetchUserById(id int, user *models.User) (err error) {
-	return db.Where("id = ?", id).First(user).Error
+	return db.First(user, id).Error
 }
 
 func UpdateUser(id int, user *models.User) (err error) {
