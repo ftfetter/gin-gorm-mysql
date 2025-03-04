@@ -1,9 +1,45 @@
 services:
+
+  web:
+    build:
+      context: .
+    image: 'ftfetter/gin-gorm-mysql'
+    container_name: gin-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+        restart: true
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: my_db
+    ports:
+      - "8080:8080"
+    networks:
+      - web_mysql_bridge
+
   mysql:
     image: 'mysql:latest'
-    ports:
-      - 9910:3306
     container_name: mysql-playground
+    ports:
+      - "3306:3306"
     environment:
-      - MYSQL_DATABASE=my_db
-      - MYSQL_ROOT_PASSWORD=root
+      MYSQL_DATABASE: my_db
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - web_mysql_bridge
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+networks:
+  web_mysql_bridge:
+    driver: bridge
+
+volumes:
+  mysql_data:
