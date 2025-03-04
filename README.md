@@ -26,7 +26,7 @@ Once running, you can test using REST
 - **PUT** `/api/v1/users/{id}`: Update a user
 - **DELETE** `/api/v1/users/{id}`: Delete a user
 
-Or even access `localhost:8080/swagger/index.html` for a interactive documentation
+Or even access `localhost:8080/swagger/index.html` for an interactive documentation
 
 User Model:
 
