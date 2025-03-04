@@ -2,6 +2,9 @@ package config
 
 import (
 	"fmt"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 const MYSQL_URL_PATTERN = "%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local"
@@ -14,18 +17,17 @@ type DBConfig struct {
 	Password string
 }
 
-func BuildDBConfig(host string, port int, user string, dbName string, password string) *DBConfig {
-	config := DBConfig{
-		Host:     host,
-		Port:     port,
-		User:     user,
-		DBName:   dbName,
-		Password: password,
+func (config *DBConfig) InitDB() *gorm.DB {
+	db, err := gorm.Open(mysql.Open(config.mysqlUrl()), &gorm.Config{})
+
+	if err != nil {
+		fmt.Printf("Error connecting to database: error=%v\n", err)
 	}
-	return &config
+
+	return db
 }
 
-func (config *DBConfig) MysqlUrl() string {
+func (config *DBConfig) mysqlUrl() string {
 	return fmt.Sprintf(
 		MYSQL_URL_PATTERN,
 		config.User,
