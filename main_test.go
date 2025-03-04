@@ -6,35 +6,24 @@ import (
 	"gin-gorm-mysql/controllers"
 	"gin-gorm-mysql/database"
 	"gin-gorm-mysql/routes"
-
-	_ "gin-gorm-mysql/docs"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// TODO: Get these values from environment variables
-const (
-	DB_USERNAME = "root"
-	DB_PASSWORD = "root"
-	DB_NAME     = "my_db"
-	DB_HOST     = "127.0.0.1"
-	DB_PORT     = 9910
-)
+func TestMain(t *testing.T) {
+	// Set Gin to Test Mode
+	gin.SetMode(gin.TestMode)
 
-// @title           Gin + GORM + MySQL API
-// @version         1.0
-// @description     Application to practice GoLang using Gin, GORM and MySQL.
-
-// @license.name	Apache 2.0
-// @license.url	    http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host      localhost:8080
-// @BasePath  /api/v1
-func main() {
+	// Create a new router
 	r := gin.Default()
 
+	// Initialize the database configuration
 	db := config.DBConfig{
 		Host:     DB_HOST,
 		Port:     DB_PORT,
@@ -43,13 +32,24 @@ func main() {
 		Password: DB_PASSWORD,
 	}
 
+	// Initialize the repository, service, and controller
 	repository := database.NewUserRepository(db.InitDB())
 	service := business.NewUserService(repository)
 	controller := controllers.NewUserController(service)
 	router := routes.NewRouter(controller)
 
+	// Setup the router
 	router.SetupRouter(r)
 
+	// Add the Swagger route
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	_ = r.Run(":8080")
+
+	// Create a test server
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	// Make a request to the Swagger endpoint
+	resp, err := http.Get(ts.URL + "/swagger/index.html")
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
