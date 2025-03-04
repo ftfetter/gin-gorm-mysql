@@ -5,18 +5,8 @@ Simple CRUD just to practicing Gin + GORM + MySQL
 To test the application, please go to project root folder and run
 
 ```
-$ docker compose up
+$ docker compose up -d
 ```
-
-to setup a MySQL server.
-
-Then,
-
-```
-$ go run main.go
-```
-
-to run the application itself.
 
 Once running, you can test using REST
 
